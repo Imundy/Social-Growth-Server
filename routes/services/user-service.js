@@ -1,6 +1,5 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
-const util = require('util');
 const config = require('../../config');
 
 const UserService = {

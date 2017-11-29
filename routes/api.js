@@ -1,6 +1,6 @@
 var express = require('express');
-var router = express.Router();
 const jwtMiddleware = require('./auth/jwt-middleware');
+var router = express.Router();
 
 router.use(jwtMiddleware);
 
