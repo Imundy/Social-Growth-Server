@@ -12,3 +12,5 @@ router.post('/accounts/remove', (req, res) => {
 router.get('/accounts', (req, res) => {
 
 });
+
+module.exports = router;
