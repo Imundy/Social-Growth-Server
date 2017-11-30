@@ -22,6 +22,12 @@ const SocialService = {
         accountId = rows.insertId;
       } else {
         accountId = rows[0].id;
+        if (rows[0].tokens == null) {
+          await connection.execute(
+            `UPDATE social_accounts SET tokens = :tokens WHERE id = :accountId;`,
+            { tokens: JSON.stringify(tokens), accountId }
+          );
+        }
         [rows, fields] = await connection.query(
           `SELECT * FROM social_accounts_to_users WHERE account_id = :accountId AND user_id = :userId;`,
           { accountId,  userId }
