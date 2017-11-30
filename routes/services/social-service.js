@@ -48,7 +48,34 @@ const SocialService = {
     }
   },
   removeAccount: async ({ userId, accountId }) => {
+    try {
+      const connection = await mysql.createConnection(config.mysqlCreds);
 
+      let [rows] = await connection.query(
+        `UPDATE social_accounts_to_users SET signed_in = FALSE WHERE account_id = :accountId AND user_id = :userId;`,
+        { accountId,  userId }
+      );
+
+      [rows, fields] = await connection.query(
+        `SELECT * FROM social_accounts_to_users WHERE account_id = :accountId;`,
+        { accountId }
+      );
+
+      const anySignedIn = rows.some(x => x.signed_in);
+      if (!anySignedIn) {
+        await connection.execute(
+          `UPDATE social_accounts SET tokens = NULL WHERE id = :accountId;`,
+          { accountId }
+        );
+      }
+
+      connection.destroy();
+      return;
+    } catch(err) {
+      // err
+      console.log(err);
+      return 'error';
+    }
   },
   getAccountsForUser: async ({ userId }) => {
 

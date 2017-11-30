@@ -8,9 +8,7 @@ var bodyParser = require('body-parser');
 var index = require('./routes/index');
 var users = require('./routes/users-api');
 var api = require('./routes/api');
-var facebookApi = require('./routes/facebook-api');
-var instagramApi = require('./routes/instagram-api');
-var twitterApi = require('./routes/twitter-api');
+var socialApi = require('./routes/social-api');
 
 
 var app = express();
@@ -29,9 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/api/users', users);
-app.use('/api/facebook', facebookApi);
-app.use('/api/instagram', instagramApi);
-app.use('/api/twitter', twitterApi);
+app.use('/api/social', socialApi);
 app.use('/api', api);
 
 // catch 404 and forward to error handler
