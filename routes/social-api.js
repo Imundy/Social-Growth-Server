@@ -32,7 +32,13 @@ router.post('/accounts/remove', async (req, res) => {
 });
 
 router.get('/accounts', async (req, res) => {
+  const accounts = await socialService.getAccountsForUser({ userId: req.user.id });
+  res.status(200).json({ accounts }).send();
+});
 
+router.get('/accounts/:accountId', async (req, res) => {
+  const account = await socialService.getAccountForUser({ userId: req.user.id, accountId: req.params.accountId });
+  res.status(200).json(account).send();
 });
 
 router.post('/facebook/settings', async (req, res) => {

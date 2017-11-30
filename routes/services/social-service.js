@@ -84,16 +84,119 @@ const SocialService = {
     }
   },
   getAccountsForUser: async ({ userId }) => {
+    try {
+      const connection = await mysql.createConnection(config.mysqlCreds);
 
+      let [rows, fields] = await connection.query(
+        `SELECT * FROM social_accounts_to_users WHERE user_id = :userId;`,
+        { userId }
+      );
+
+      let accounts = [];
+      if (rows.length > 0) {
+        [rows, fields] = await connection.query(
+          `SELECT * FROM social_accounts WHERE id IN (:accountIds);`,
+          { accountIds: rows.map(x => x.account_id) }
+        );
+        accounts = rows.map(account => ({
+          id: account.id,
+          userId,
+          socialAccountId: account.social_account_id,
+          tokens: account.tokens,
+        }));
+      }
+      connection.destroy();
+      return accounts;
+    } catch(err) {
+      // err
+      console.log(err);
+      return 'error';
+    }
   },
-  getAccount: async ({ accountId }) => {
+  getAccountForUser: async ({ userId, accountId }) => {
+    try {
+      const connection = await mysql.createConnection(config.mysqlCreds);
 
+      let [rows, fields] = await connection.query(
+        `SELECT * FROM social_accounts_to_users WHERE account_id = :accountId AND user_id = :userId;`,
+        { accountId, userId }
+      );
+      const accountUser = rows[0];
+      if (!accountUser || !accountUser.signed_in) {
+        connection.destroy();
+        return null;
+      }
+
+      [rows, fields] = await connection.query(
+        `SELECT * FROM social_accounts WHERE id = :accountId;`,
+        { accountId }
+      );
+      const account = rows[0];
+      connection.destroy();
+      return {
+        id: account.id,
+        userId,
+        socialAccountId: account.social_account_id,
+        tokens: account.tokens,
+      };
+    } catch(err) {
+      // err
+      console.log(err);
+      return 'error';
+    }
   },
-  getSettingsForService: async ({ accountId }) => {
+  getSettingsForAccount: async ({ accountId }) => {
+    try {
+      const connection = await mysql.createConnection(config.mysqlCreds);
 
+      let [rows, fields] = await connection.query(
+        `SELECT * FROM social_settings WHERE account_id = :accountId;`,
+        { accountId }
+      );
+
+      const setting = rows[0];
+      return setting ? {
+        id: setting.id,
+        accountId,
+        settings: JSON.parse(settings),
+      } : null;
+    } catch(err) {
+      // err
+      console.log(err);
+      return 'error';
+    }
   },
-  updateSettingsForService: async ({ accountId, settings }) => {
+  updateSettingsForAccount: async ({ accountId, settings }) => {
+    try {
+      const connection = await mysql.createConnection(config.mysqlCreds);
 
+      let [rows, fields] = await connection.query(
+        `SELECT * FROM social_settings WHERE account_id = :accountId;`,
+        { accountId }
+      );
+
+      let settingId;
+      if (!rows[0]) {
+        [rows] = await connection.query(
+          `INSERT INTO social_settings (account_id, settings) VALUES (:accountId, :settings);`,
+          { accountId,  settings: JSON.stringify(settings) }
+        );
+        settingId = rows.insertId;
+      } else {
+        settingId = rows[0].id;
+        [rows] = await connection.query(
+          `UPDATE social_settings SET settings = :settings WHERE account_id = :accountId;`,
+          { accountId,  settings: JSON.stringify(settings) }
+        );
+      }
+
+      connection.destroy();
+      return settingId;
+    } catch(err) {
+      // err
+      console.log(err);
+      return 'error';
+    }
   }
 };
 
