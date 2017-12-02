@@ -41,28 +41,18 @@ router.get('/accounts/:accountId', async (req, res) => {
   res.status(200).json(account).send();
 });
 
-router.post('/facebook/settings', async (req, res) => {
-
+router.put('/accounts/:accountId/settings', async (req, res) => {
+  try {
+    await socialService.updateSettingsForAccount({ accountId: req.params.accountId, userId: req.user.id, settings: req.body.settings });
+    res.status(200).send();
+  } catch (error) {
+    return res.status(400).send();
+  }
 });
 
-router.get('/facebook/settings', async (req, res) => {
-  
-});
-
-router.post('/instagram/settings', async (req, res) => {
-
-});
-
-router.get('/instagram/settings', async (req, res) => {
-  
-});
-
-router.post('/twitter/settings', async (req, res) => {
-
-});
-
-router.get('/twitter/settings', async (req, res) => {
-  
+router.get('/accounts/:accountId/settings', async (req, res) => {
+  const settings = await socialService.getSettingsForAccount({ accountId: req.params.accountId, userId: req.user.id });
+  res.status(200).json(settings);
 });
 
 module.exports = router;

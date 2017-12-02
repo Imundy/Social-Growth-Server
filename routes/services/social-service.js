@@ -145,20 +145,30 @@ const SocialService = {
       return 'error';
     }
   },
-  getSettingsForAccount: async ({ accountId }) => {
+  getSettingsForAccount: async ({ accountId, userId }) => {
     try {
       const connection = await mysql.createConnection(config.mysqlCreds);
 
       let [rows, fields] = await connection.query(
+        `SELECT * FROM social_accounts_to_users WHERE user_id = :userId AND account_id = :accountId AND signed_in = TRUE;`,
+        { accountId , userId }
+      );
+
+      if (!rows[0]) {
+        connection.destroy();
+        return null;
+      }
+
+      [rows, fields] = await connection.query(
         `SELECT * FROM social_settings WHERE account_id = :accountId;`,
         { accountId }
       );
 
-      const setting = rows[0];
-      return setting ? {
-        id: setting.id,
+      const settingsRow = rows[0];
+      return settingsRow ? {
+        id: settingsRow.id,
         accountId,
-        settings: JSON.parse(settings),
+        settings: settingsRow.settings,
       } : null;
     } catch(err) {
       // err
@@ -166,11 +176,21 @@ const SocialService = {
       return 'error';
     }
   },
-  updateSettingsForAccount: async ({ accountId, settings }) => {
+  updateSettingsForAccount: async ({ accountId, userId, settings }) => {
     try {
       const connection = await mysql.createConnection(config.mysqlCreds);
 
       let [rows, fields] = await connection.query(
+        `SELECT * FROM social_accounts_to_users WHERE user_id = :userId AND account_id = :accountId AND signed_in = TRUE;`,
+        { accountId , userId }
+      );
+
+      if (!rows[0]) {
+        connection.destroy();
+        throw new Error('unauthorized');
+      }
+
+      [rows, fields] = await connection.query(
         `SELECT * FROM social_settings WHERE account_id = :accountId;`,
         { accountId }
       );
