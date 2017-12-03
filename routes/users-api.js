@@ -8,6 +8,10 @@ const router = express.Router();
 /* GET users listing. */
 router.post('/signin', async function(req, res, next) {
   const user = await userService.getUser({ email: req.body.email });
+  if (user == null) {
+    return res.status(404).send();
+  }
+
   if (bcrypt.compareSync(req.body.password, user.password)) {
     const token = signin({ email: req.body.email, id: user.id });
     return res.status(200).json({ token }).send();
