@@ -14,7 +14,7 @@ router.post('/signin', async function(req, res, next) {
 
   if (bcrypt.compareSync(req.body.password, user.password)) {
     const token = signin({ email: req.body.email, id: user.id });
-    return res.status(200).json({ token }).send();
+    return res.status(200).json({ token, userId: user.id }).send();
   } else {
     return res.status(401).json({ error: 'Incorrect email or password' }).send();
   }
