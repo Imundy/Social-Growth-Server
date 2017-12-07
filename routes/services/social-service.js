@@ -88,7 +88,7 @@ const SocialService = {
       const connection = await mysql.createConnection(config.mysqlCreds);
 
       let [rows, fields] = await connection.query(
-        `SELECT * FROM social_accounts_to_users WHERE user_id = :userId;`,
+        `SELECT * FROM social_accounts_to_users WHERE user_id = :userId AND signed_in = TRUE;`,
         { userId }
       );
 
