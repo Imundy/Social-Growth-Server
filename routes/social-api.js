@@ -14,7 +14,7 @@ router.post('/accounts/add', async (req, res) => {
     userId: req.user.id,
     tokens: req.body.tokens,
     type: req.body.type,
-    socialAccountId: req.body.socialAccountId,
+    accountId: req.body.accountId,
   })
   res.status(200).json({ accountId }).send();
 });
