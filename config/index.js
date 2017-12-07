@@ -1,4 +1,4 @@
-import { decrypt } from './decrypt';
+const decrypt = require('./decrypt');
 const fs = require('fs');
 
 const env = process.env.NODE_ENV || 'local';
