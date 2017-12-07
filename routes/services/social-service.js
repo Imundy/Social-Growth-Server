@@ -1,6 +1,6 @@
 const mysql = require('mysql2/promise');
 const config = require('../../config');
-const socialAccountTypes = require('./social-account-types');
+const { socialAccountTypes, socialAccountMapper } = require('./social-account-types');
 
 const SocialService = {
   addAccount: async ({ userId, type, tokens, socialAccountId }) => {
@@ -103,6 +103,7 @@ const SocialService = {
           userId,
           socialAccountId: account.social_account_id,
           tokens: account.tokens,
+          type: socialAccountMapper[account.type],
         }));
       }
       connection.destroy();
@@ -138,6 +139,7 @@ const SocialService = {
         userId,
         socialAccountId: account.social_account_id,
         tokens: account.tokens,
+        type: socialAccountMapper[account.type],
       };
     } catch(err) {
       // err

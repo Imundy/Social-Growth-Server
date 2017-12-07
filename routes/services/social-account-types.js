@@ -4,4 +4,6 @@ const socialAccountTypes = {
   instagram: 3,
 };
 
-module.exports = socialAccountTypes;
+const socialAccountMapper = [ '', 'facebook', 'twitter', 'instagram'];
+
+module.exports = { socialAccountTypes, socialAccountMapper };
