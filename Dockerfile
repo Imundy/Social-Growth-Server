@@ -21,8 +21,8 @@ RUN echo ${NODE_ENV}
 
 EXPOSE 8080
 
-# Move into compiled js folder
+# Move into app
 WORKDIR /app
 
 # Run the server
-CMD node start
+CMD npm start

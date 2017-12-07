@@ -39,7 +39,7 @@ services:
 
   production:
     restart: always
-    image: ianmundy/simplygrow
+    image: ianmundy/social-growth-server
     container_name: production
     volumes:
       - "~/keys:/var/keys"
