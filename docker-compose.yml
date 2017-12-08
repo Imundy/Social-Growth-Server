@@ -9,7 +9,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - "/etc/nginx/nginx.conf:/etc/nginx/nginx.conf"
+      - "/etc/nginx/conf.d"
       - "/etc/nginx/vhost.d"
       - "/usr/share/nginx/html"
       - "./volumes/proxy/certs:/etc/nginx/certs:ro"
@@ -46,11 +46,6 @@ services:
     environment:
       - VIRTUAL_HOST=simplygrow.me
       - VIRTUAL_NETWORK=nginx-proxy
-      - VIRTUAL_PORT=8080
+      - VIRTUAL_PORT=3000
       - LETSENCRYPT_HOST=simplygrow.me
       - LETSENCRYPT_EMAIL=mundycore@gmail.com
-    links:
-      - "mongodb:mongo"
-  mongodb:
-    restart: always
-    image: mongo

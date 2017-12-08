@@ -10,6 +10,7 @@ var users = require('./routes/users-api');
 var api = require('./routes/api');
 var socialApi = require('./routes/social-api');
 
+console.log('Starting Social Grow Server')
 
 var app = express();
 

@@ -11,6 +11,7 @@ const decrypt = () => {
 
   fs.openSync(__dirname + '/production.js', 'w');
   fs.writeFileSync(__dirname + '/production.js', decrypted, 'utf8');
+  console.log('Decrypted config file successfully');
 };
 
 module.exports = decrypt;
