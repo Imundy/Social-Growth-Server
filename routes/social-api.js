@@ -43,8 +43,8 @@ router.get('/accounts/:accountId', async (req, res) => {
 
 router.put('/accounts/:accountId/settings', async (req, res) => {
   try {
-    await socialService.updateSettingsForAccount({ accountId: req.params.accountId, userId: req.user.id, settings: req.body.settings });
-    res.status(200).send();
+    const settingsId = await socialService.updateSettingsForAccount({ accountId: req.params.accountId, userId: req.user.id, settings: req.body.settings });
+    res.status(200).json(settingsId);
   } catch (error) {
     return res.status(400).send();
   }
