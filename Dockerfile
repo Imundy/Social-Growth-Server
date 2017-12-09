@@ -19,7 +19,7 @@ COPY . /app
 ENV NODE_ENV ${NODE}
 RUN echo ${NODE_ENV}
 
-EXPOSE 8080
+EXPOSE 3000
 
 # Move into app
 WORKDIR /app
