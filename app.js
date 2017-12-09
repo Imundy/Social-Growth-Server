@@ -9,6 +9,7 @@ var index = require('./routes/index');
 var users = require('./routes/users-api');
 var api = require('./routes/api');
 var socialApi = require('./routes/social-api');
+var facebook = require('./routes/facebook');
 
 console.log('Starting Social Grow Server')
 
@@ -30,6 +31,7 @@ app.use('/', index);
 app.use('/api/users', users);
 app.use('/api/social', socialApi);
 app.use('/api', api);
+app.use('/', facebook);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
