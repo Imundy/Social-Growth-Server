@@ -8,12 +8,11 @@ router.get('/webhook', (req, res) => {
     return res.json(parseInt(req.query['hub.challenge'], 10));
   }
 
-  console.log('webhook ', JSON.stringify(req.body));
-
   return res.status(200).send();
 });
 
 router.post('/webhook', (req, res) => {
+  console.log('webhook ', JSON.stringify(req.body));
   return res.status(200).send();
 });
 
