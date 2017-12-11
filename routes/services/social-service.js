@@ -3,6 +3,47 @@ const config = require('../../config');
 const { socialAccountTypes, socialAccountMapper } = require('./social-account-types');
 
 const SocialService = {
+  getFacebookPages: async (accountId) => {
+    const connection = await mysql.createConnection(config.mysqlCreds);
+    try {
+      let [rows, fields] = await connection.query(
+        `SELECT * FROM facebook_pages WHERE account_id = :accountId;`,
+        { accountId }
+      );
+      
+      if (!rows[0]) {
+        return { success: [] };
+      }
+  
+      return { success: rows };
+    } catch (error) {
+      return { error };
+    }
+  },
+  addFacebookPage: async ({ pageId, accountId }) => {
+    const connection = await mysql.createConnection(config.mysqlCreds);
+    // need to validate faebook page
+
+    let [rows, fields] = await connection.query(
+      'SELECT * FROM facebook_pages WHERE page_id = :pageId;',
+      { pageId }
+    );
+
+    if (!rows[0]) {
+      try {
+        [rows] = await connection.query(
+          'INSERT INTO facebook_pages (page_id, account_id) VALUES (:pageId, :accountId)',
+          { pageId: pageId.toString(), accountId }
+        );
+        return { error: null, success: true };
+      } catch (error) {
+        return { error };
+      }
+    } else {
+      // validate 
+      return { error: 'Page is already managed' };
+    }
+  },
   addAccount: async ({ userId, type, tokens, socialAccountId }) => {
     try {
       const connection = await mysql.createConnection(config.mysqlCreds);

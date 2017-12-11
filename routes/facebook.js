@@ -1,3 +1,4 @@
+var request = require('request');
 var express = require('express');
 var router = express.Router();
 
@@ -16,7 +17,7 @@ router.post('/webhook', (req, res) => {
     req.body.entry.forEach(entry => {
       const change = entry.changes.find(x => x.verb === 'add');
       if (change.field === 'feed') {
-        likePost(change.value);
+        // likePost(change.value);
         hidePost(change.value);
       }
     })
@@ -49,8 +50,27 @@ router.post('/webhook', (req, res) => {
 //   "object": "page"
 // }
 
-likePost(post) {
-
+const hidePost = (post) => {
+  if (post.message != null && post.message.indexOf('test') !== -1) {
+    request(
+      {
+        method: 'POST',
+        url: 'https://graph.facebook.com/' + post['post_id'],
+        // page access token
+        qs:
+        {
+          access_token: 'EAAWitFfSusYBAJTjJ1MDfPPVufU3nQ1Mx34SKf7VAq4ef4ZBHIThHSkZCGUIc81FgnVXPy6jP68ZCQ1RjpOsbCTbIr6wDBsZCdBcTaNsD5ae2ynZA3NCRaFi6HuHsasnMKnW0y09oQA3ZAuqcAQ3iRdIZCTHm5D0JrYzuVcWagysqQ6bul7Px9ieozRBKLaumyuV8KT1bt9mAZDZD',
+          is_hidden: true
+        },
+      },
+      (err, response, body) => {
+        console.log(response, body);
+      }
+    );
+  }
 }
 
 module.exports = router;
+
+//184126008807648_188819465004969?fields=actions,application,message,created_time,likes
+
