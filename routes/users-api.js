@@ -23,13 +23,17 @@ router.post('/signin', async function(req, res, next) {
 
 router.post('/register', async function(req, res, next) {
   if (req.body.email == null) {
-    return res.status(400).json({ error: 'Email cannot be empty' }).send();
+    return res.status(400).json({ error: 'Email cannot be empty' });
   } else if (req.body.password == null) {
-    return res.status(400).json({ error: 'Password cannot be empty' }).send();
+    return res.status(400).json({ error: 'Password cannot be empty' });
   }
 
-  const userId = await userService.createUser({ email: req.body.email, password: req.body.password });
-  res.status(200).json({ userId }).send();
+  const { error, success } = await userService.createUser({ email: req.body.email, password: req.body.password });
+  if (error) {
+    return res.status(400).json(error);
+  } 
+
+  res.status(200).json({ userId: success });
 });
 
 module.exports = router;

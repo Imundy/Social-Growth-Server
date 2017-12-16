@@ -13,7 +13,7 @@ const UserService = {
       );
 
       if (rows[0]) {
-        return 'User already exists';
+        return { error: 'User already exists' };
       }
 
       [rows] = await connection.query(
@@ -21,11 +21,11 @@ const UserService = {
         { email, password: bcryptedPassword });
 
       connection.destroy();
-      return rows.insertId;
+      return { success: rows.insertId };
     } catch(err) {
       // err
       console.log(err);
-      return 'error';
+      return { error: err };
     }
   },
   getUser: async ({ email }) => {
