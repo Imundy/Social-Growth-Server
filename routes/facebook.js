@@ -1,6 +1,8 @@
-var request = require('request');
-var express = require('express');
-var router = express.Router();
+const request = require('request');
+const express = require('express');
+const socialService = require('./services/social-service');
+
+const router = express.Router();
 
 router.get('/webhook', (req, res) => {
   const verify = req.query['hub.verify_token'];
@@ -14,17 +16,25 @@ router.get('/webhook', (req, res) => {
 
 router.post('/webhook', (req, res) => {
   if (req.body.entry) {
-    req.body.entry.forEach(entry => {
-      const change = entry.changes.find(x => x.verb === 'add');
-      if (change.field === 'feed') {
-        // likePost(change.value);
-        hidePost(change.value);
+    req.body.entry.forEach(async entry => {
+      const change = entry.changes.find(x => x.value.verb === 'add');
+      const { error, success } = await socialService.getPageById(entry.id);
+      if (error != null || success == null || change == null) {
+        return;
+      }
+
+      if (change.field === 'feed' && success != null && success.settings != null) {
+        if (success.settings.autoHideComments.on) {
+          hidePost(change.value, success);
+        }
       }
     })
   }
+
   return res.status(200).send();
 });
 
+// SAMPLE FACEBOOK WEBHOOK POST
 // {
 //   "entry": [
 //     {
@@ -50,27 +60,34 @@ router.post('/webhook', (req, res) => {
 //   "object": "page"
 // }
 
-const hidePost = (post) => {
-  if (post.message != null && post.message.indexOf('test') !== -1) {
+const hidePost = (post, page) => {
+  let flag = false;
+  page.settings.autoHideComments.value.split(',').forEach(value => {
+    if (value.trim().length !== 0 && post.message.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+      flag = true;
+    }
+  });
+
+  if (post.message != null && flag) {
     request(
       {
         method: 'POST',
         url: 'https://graph.facebook.com/' + post['post_id'],
-        // page access token
         qs:
         {
-          access_token: 'EAAWitFfSusYBAJTjJ1MDfPPVufU3nQ1Mx34SKf7VAq4ef4ZBHIThHSkZCGUIc81FgnVXPy6jP68ZCQ1RjpOsbCTbIr6wDBsZCdBcTaNsD5ae2ynZA3NCRaFi6HuHsasnMKnW0y09oQA3ZAuqcAQ3iRdIZCTHm5D0JrYzuVcWagysqQ6bul7Px9ieozRBKLaumyuV8KT1bt9mAZDZD',
+          access_token: page.tokens[0],
           is_hidden: true
         },
       },
-      (err, response, body) => {
-        console.log(response, body);
+      async (err, response, body) => {
+        if (err != null || response.statusCode < 200 || response.statusCode >= 300) {
+          await socialService.logError(page.accountId, err || { error: 'request failed' });
+        } else {
+          return;
+        }
       }
     );
   }
 }
 
 module.exports = router;
-
-//184126008807648_188819465004969?fields=actions,application,message,created_time,likes
-

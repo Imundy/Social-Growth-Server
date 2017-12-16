@@ -7,7 +7,16 @@ const UserService = {
     try {
       const connection = await mysql.createConnection(config.mysqlCreds);
       const bcryptedPassword = await bcrypt.hashSync(password, 5);
-      const [rows] = await connection.query(
+      let [rows, fields] = await connection.query(
+        `SELECT * FROM users WHERE email = :email;`,
+        { email }
+      );
+
+      if (rows[0]) {
+        return 'User already exists';
+      }
+
+      [rows] = await connection.query(
         'INSERT INTO users (email, password) VALUES (:email, :password);', 
         { email, password: bcryptedPassword });
 

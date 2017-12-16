@@ -20,7 +20,7 @@ router.post('/accounts/add', async (req, res) => {
 });
 
 router.post('/accounts/remove', async (req, res) => {
-  if (!req.body.accountId) {
+  if (!req.body.accountId) {    
     return res.status(400).json({ error: 'Must provide accountId' }).send();
   }
 

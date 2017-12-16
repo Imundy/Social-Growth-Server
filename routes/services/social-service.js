@@ -3,6 +3,50 @@ const config = require('../../config');
 const { socialAccountTypes, socialAccountMapper } = require('./social-account-types');
 
 const SocialService = {
+  logError: async (pageId, error) => {
+    const connection = await mysql.createConnection(config.mysqlCreds);
+    try {
+      let [rows, fields] = await connection.query(
+        `INSERT INTO facebook_auto_error (page_id, error) VALUES (:pageId, :error);`,
+        { pageId, error }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  getPageById: async (pageId) => {
+    const connection = await mysql.createConnection(config.mysqlCreds);
+    let page;
+    try {
+      let [rows, fields] = await connection.query(
+        `SELECT account_id as accountId, page_id as pageId FROM facebook_pages WHERE page_id = :pageId;`,
+        { pageId }
+      );
+
+      if (!rows[0]) {
+        return { success: null };
+      }
+
+      page = rows[0];
+    } catch (error) {
+      return { error };
+    }
+
+    try {
+      let [rows, fields] = await connection.query(
+        `SELECT account_id as accountId, settings, tokens FROM social_settings s INNER JOIN social_accounts a ON s.account_id = a.id WHERE account_id = :accountId;`,
+        { accountId: page.accountId }
+      );
+
+      if (!rows[0]) {
+        return { success: null };
+      }
+
+      return { success: rows[0] };
+    } catch (error) {
+      return { error };
+    }
+  },
   getFacebookPages: async (accountId) => {
     const connection = await mysql.createConnection(config.mysqlCreds);
     try {
